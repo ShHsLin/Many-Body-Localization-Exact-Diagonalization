@@ -1,0 +1,87 @@
+
+MPIRANK:0
+largedim : 4096
+smalldim : 924
+Building basisMatrix with dim : 924, 12
+Building Transition Matrix
+ ---- The end of generating dictionary and Tmatrix ----
+ ---- V = -2 -------- 
+Loading H_no_poten from the existed file
+ ---- The end of generating Hamiltonian w/o rand pot ----
+File:EigVec_L12V_20W0E10.m  Already Exist, Appending the data... 
+File:OPDM_L12V_20W0E10.m Already Exist, Appending the data... 
+ Number of converged eigenpairs: 1
+
+           k          ||Ax-kx||/||kx||
+   ----------------- ------------------
+     -11.567521      1.54798e-09
+
+ Number of converged eigenpairs: 1
+
+           k          ||Ax-kx||/||kx||
+   ----------------- ------------------
+       5.050644      7.03283e-10
+
+ target : -3.25844
+  Linear st_ solve converged due to CONVERGED_RTOL iterations 1
+  Linear st_ solve converged due to CONVERGED_RTOL iterations 1
+  Linear st_ solve converged due to CONVERGED_RTOL iterations 1
+  Linear st_ solve converged due to CONVERGED_RTOL iterations 1
+  Linear st_ solve converged due to CONVERGED_RTOL iterations 1
+  Linear st_ solve converged due to CONVERGED_RTOL iterations 1
+  Linear st_ solve converged due to CONVERGED_RTOL iterations 1
+  Linear st_ solve converged due to CONVERGED_RTOL iterations 1
+  Linear st_ solve converged due to CONVERGED_RTOL iterations 1
+  Linear st_ solve converged due to CONVERGED_RTOL iterations 1
+  Linear st_ solve converged due to CONVERGED_RTOL iterations 1
+  Linear st_ solve converged due to CONVERGED_RTOL iterations 1
+  Linear st_ solve converged due to CONVERGED_RTOL iterations 1
+  Linear st_ solve converged due to CONVERGED_RTOL iterations 1
+  Linear st_ solve converged due to CONVERGED_RTOL iterations 1
+  Linear st_ solve converged due to CONVERGED_RTOL iterations 1
+ Number of converged eigenpairs: 3
+
+           k          ||Ax-kx||/||kx||
+   ----------------- ------------------
+      -3.258265      6.96707e-14
+
+trace of rho: 1
+Entropy : 2.88441
+  Linear st_ solve converged due to CONVERGED_RTOL iterations 1
+  Linear st_ solve converged due to CONVERGED_RTOL iterations 1
+  Linear st_ solve converged due to CONVERGED_RTOL iterations 1
+  Linear st_ solve converged due to CONVERGED_RTOL iterations 1
+  Linear st_ solve converged due to CONVERGED_RTOL iterations 1
+  Linear st_ solve converged due to CONVERGED_RTOL iterations 1
+  Linear st_ solve converged due to CONVERGED_RTOL iterations 1
+  Linear st_ solve converged due to CONVERGED_RTOL iterations 1
+  Linear st_ solve converged due to CONVERGED_RTOL iterations 1
+  Linear st_ solve converged due to CONVERGED_RTOL iterations 1
+  Linear st_ solve converged due to CONVERGED_RTOL iterations 1
+  Linear st_ solve converged due to CONVERGED_RTOL iterations 1
+  Linear st_ solve converged due to CONVERGED_RTOL iterations 1
+  Linear st_ solve converged due to CONVERGED_RTOL iterations 1
+  Linear st_ solve converged due to CONVERGED_RTOL iterations 1
+  Linear st_ solve converged due to CONVERGED_RTOL iterations 1
+  Linear st_ solve converged due to CONVERGED_RTOL iterations 1
+  Linear st_ solve converged due to CONVERGED_RTOL iterations 1
+  Linear st_ solve converged due to CONVERGED_RTOL iterations 1
+  Linear st_ solve converged due to CONVERGED_RTOL iterations 1
+  Linear st_ solve converged due to CONVERGED_RTOL iterations 1
+  Linear st_ solve converged due to CONVERGED_RTOL iterations 1
+  Linear st_ solve converged due to CONVERGED_RTOL iterations 1
+  Linear st_ solve converged due to CONVERGED_RTOL iterations 1
+ Number of converged eigenpairs: 12
+
+       0.215667      6.96707e-14
+       0.232693      6.96707e-14
+       0.288510      6.96707e-14
+       0.320138      6.96707e-14
+       0.434062      6.96707e-14
+       0.525327      6.96707e-14
+       0.578063      6.96707e-14
+       0.598495      6.96707e-14
+       0.637906      6.96707e-14
+       0.669064      6.96707e-14
+       0.739617      6.96707e-14
+       0.760460      6.96707e-14
