@@ -18,6 +18,8 @@
 //#define IPR_log
 //#define Header
 //#define SAVE_OPDM
+//#define SAVE_EIG_VEC
+
 
 #ifndef ASC
 #include<random>
@@ -47,16 +49,20 @@ const double E_default=0;
 const int realization_default=1;
 const double rand_max=RAND_MAX;
 
-const int num_eig_taken_default = 50; // Should be >=3
+const int num_eig_taken_default = 3; // Should be >=3
 
 
 KHASH_MAP_INIT_INT64(ToLargeMap, int);
 KHASH_MAP_INIT_INT64(ToSmallMap, int);
 
 
-static char help[] = "Standard symmetric eigenproblem corresponding to the Laplacian operator in 1 dimension.\n\n"
+static char help[] = "This is an exact diagonalization code for many body localization in 1d. The code uses SLEPc PETSc and armadillo libraries.\n\n"
 "The command line options are:\n"
-"  -n <n>, where <n> = number of grid subdivisions = matrix dimension.\n\n";
+"  -L <L>, where <L> = system size\n"
+"  -R <R>, where <R> = number of realization\n"
+"  -V <V>, where <V> = interaction strength\n"
+"  -W <W>, where <W> = disorder strength\n"
+"  -E <E>, where <E> = energy density\n";
 
 
 
@@ -151,17 +157,6 @@ int main(int argc, char** argv){
 	   char  common_options[]      = "-st_type sinvert -st_ksp_type preonly -st_pc_type cholesky\
 	   -st_pc_factor_mat_solver_package mumps\
 	   -mat_mumps_icntl_13 1";
-
-	   char  common_options[]      = "-ksp_type fgmres\
-	   -snes_grid_sequence 5 \
-	   -pc_type mg\
-	   -mg_levels_pc_type none \
-	   -mg_coarse_pc_type none \
-	   -pc_mg_type full \
-	   -mg_coarse_ksp_type gmres \
-	   -mg_levels_ksp_type gmres \
-	   -mg_coarse_ksp_max_it 6 \
-	   -mg_levels_ksp_max_it 3";
 	 */
 
 
@@ -183,7 +178,6 @@ int main(int argc, char** argv){
 
 	const int Number_ele=L/2;
 	const long long int smallDim=HalfFactorial(L)/Factorial(Number_ele);
-	//const long long int smallDim=Factorial(L)/(Factorial(Number_ele)*Factorial(Number_ele));
 	const long long int largeDim=pow(2,L);
 	const int halfChainDim=pow(2,L/2);
 
@@ -198,24 +192,17 @@ int main(int argc, char** argv){
 
 
 	//int basisMatrix[smallDim][L];
+	// Basis matrix map samllDim_index to system config
 	int** basisMatrix= new int*[smallDim];
 	for (int i=0; i< smallDim; i++) {
 		basisMatrix[i]=new int[L];
 	}
-	/*
-	   int **basisMatrix;
-	   basisMatrix  = (int**)malloc(sizeof(int*) * smallDim);
-	   for(int i=0;i<smallDim;i++){
-	   basisMatrix[i] =(int*) malloc(sizeof(int)*L);
-	   }
-	 */
 
-	//double entangleEntropy[realization*5];
 	double* entangleEntropy=new double[realization*num_eig_taken];
 	for (int i=0; i<realization*num_eig_taken; i++) {
 		entangleEntropy[i]=0;
 	}
-	//double occuSpecMatrix[realization*5][L];
+
 	double** occuSpecMatrix = new double*[realization*num_eig_taken];
 	for (int i=0; i<realization*num_eig_taken; i++) {
 		occuSpecMatrix[i]=new double[L];
@@ -250,9 +237,6 @@ int main(int argc, char** argv){
 	int tempV=PetscScalarV*10;
 	int tempE=PetscScalarE*100;
 
-	//std::string filenumL=std::to_string(L);
-	//std::string filenumV=std::to_string(V);
-	//std::string filenumW=std::to_string(tempW);
 	char filenumL[10]; sprintf(filenumL, "%d",L);
 	char filenumV[10];
 	if (tempV >= 0) {
@@ -279,14 +263,13 @@ int main(int argc, char** argv){
 	char filenameGR[100]="GapRatio_L";
 	char filenameIPR[100]="IPR_L";
 
-	//strcat (filenameH,filenumL.c_str()); 	strcat (filenameVec,filenumL.c_str());
 	strcat (filenameH,filenumL);
 	strcat (filenameVec,filenumL);
 	strcat (filenameMat,filenumL);
 	strcat (filenameOS,filenumL);
 	strcat (filenameEE,filenumL);
 	strcat (filenameGR,filenumL);
-        strcat (filenameIPR,filenumL);
+	strcat (filenameIPR,filenumL);
 
 	strcat (filenameH,"V");
 	strcat (filenameVec,"V");
@@ -294,7 +277,7 @@ int main(int argc, char** argv){
 	strcat (filenameOS,"V");
 	strcat (filenameEE,"V");
 	strcat (filenameGR,"V");
-        strcat (filenameIPR,"V");
+	strcat (filenameIPR,"V");
 
 	strcat (filenameH,filenumV);
 	strcat (filenameVec,filenumV);
@@ -302,35 +285,35 @@ int main(int argc, char** argv){
 	strcat (filenameOS,filenumV);
 	strcat (filenameEE,filenumV);
 	strcat (filenameGR,filenumV);
-        strcat (filenameIPR,filenumV);
+	strcat (filenameIPR,filenumV);
 
 	strcat (filenameVec,"W");
 	strcat (filenameMat,"W");
 	strcat (filenameOS,"W");
 	strcat (filenameEE,"W");
 	strcat (filenameGR,"W");
-        strcat (filenameIPR,"W");
+	strcat (filenameIPR,"W");
 
 	strcat (filenameVec,filenumW);
 	strcat (filenameMat,filenumW);
 	strcat (filenameOS,filenumW);
 	strcat (filenameEE,filenumW);
 	strcat (filenameGR,filenumW);
-        strcat (filenameIPR,filenumW);
+	strcat (filenameIPR,filenumW);
 
 	strcat (filenameVec,"E");
 	strcat (filenameMat,"E");
 	strcat (filenameOS,"E");
 	strcat (filenameEE,"E");
 	strcat (filenameGR,"E");
-        strcat (filenameIPR,"E");
+	strcat (filenameIPR,"E");
 
 	strcat (filenameVec,filenumE);
 	strcat (filenameMat,filenumE);
 	strcat (filenameOS,filenumE);
 	strcat (filenameEE,filenumE);
 	strcat (filenameGR,filenumE);
-        strcat (filenameIPR,filenumE);
+	strcat (filenameIPR,filenumE);
 
 	strcat (filenameH,fileend);
 	strcat (filenameVec,".m");
@@ -338,7 +321,7 @@ int main(int argc, char** argv){
 	strcat (filenameOS,".m");
 	strcat (filenameEE,".m");
 	strcat (filenameGR,".m");
-        strcat (filenameIPR,".m");
+	strcat (filenameIPR,".m");
 
 
 	PetscViewerCreate(PETSC_COMM_WORLD,&viewerbi);
@@ -352,7 +335,7 @@ int main(int argc, char** argv){
 	std::cout<<"Building basisMatrix with dim : "<<smallDim<<", "<<L<<std::endl;
 	{
 		int testChain[L];
-		int sIndex=0;
+		int sIndex=0;	// sIndex = smallDim Index
 		for(int lIndex=0 ;lIndex<largeDim ;lIndex++){
 			toChain(lIndex, testChain,L);
 			int sum=0;
@@ -379,6 +362,7 @@ int main(int argc, char** argv){
 	// - - - --  -- - - - - - -  - -- - - - -  -- - - - //
 	std::cout<<"Building Transition Matrix"<<std::endl;
 	// - - - --  -- - - - - - -  - -- - - - -  -- - - - //
+	// Only the upper half of the Transition Matrix is built
 	for(int i=0; i<L; i++){
 		for(int j=0; j<L; j++){
 			//	                ierr = MatCreateSeqAIJ(PETSC_COMM_SELF, smallDim,smallDim,10,NULL,&Tmatrix[i][j]);CHKERRQ(ierr);
@@ -493,8 +477,8 @@ int main(int argc, char** argv){
 			ierr = MatSetValue(H_no_potent,sIndex,sIndex,term_repul,INSERT_VALUES);CHKERRQ(ierr);
 			// --------------------------------------//
 
-			for(int i=0;i<L;i++){
-				//for(int i=0;i<L-1;i++){
+			for(int i=0;i<L;i++){  
+				//for(int i=0;i<L-1;i++){ 
 				// If there is particle
 				if (tempChain[i]!=0){
 					// Try  Hop to the i+1
@@ -609,7 +593,7 @@ int main(int argc, char** argv){
 		ierr = PetscViewerSetFormat(viewerasc, PETSC_VIEWER_ASCII_MATLAB);
 		ierr = PetscViewerSetFormat(viewerasc2, PETSC_VIEWER_ASCII_MATLAB);
 		//ierr = PetscViewerSetFormat(viewerasc, PETSC_VIEWER_ASCII_DENSE);
-/* NO NEED TO STORE EIGENVECTOR
+#ifdef SAVE_EIG_VEC
 		if( is_file_exist(filenameVec) ){
 			std::cout<<"File:"<<filenameVec<<"  Already Exist, Appending the data... "<<std::endl;
 			PetscViewerFileSetMode(viewerasc,FILE_MODE_APPEND);
@@ -622,7 +606,7 @@ int main(int argc, char** argv){
 			PetscViewerFileSetName(viewerasc, filenameVec);
 			//ierr =  PetscViewerASCIIOpen(PETSC_COMM_WORLD, filenameVec , &viewerasc);
 		}
-*/
+#endif
 #ifdef SAVE_OPDM
 		if( is_file_exist(filenameMat) ){
 			std::cout<<"File:"<<filenameMat<<" Already Exist, Appending the data... "<<std::endl;
@@ -639,24 +623,10 @@ int main(int argc, char** argv){
 		/////////////////////////////////////////////////
 		/////////////////////////////////////////////////
 
-
-
-		/*
-		   PetscRandomCreate(PETSC_COMM_WORLD,&rctx);
-		   PetscRandomSetType(rctx,PETSCRAND);
-		   PetscRandomSetSeed(rctx,(MPI_Rank+1)*time(NULL));
-		   PetscRandomSeed(rctx);
-		   for(int i=0;i<50;i++){
-		   PetscScalar    randnum;
-		   PetscRandomGetValue(rctx,&randnum);CHKERRABORT(PETSC_COMM_WORLD,ierr);
-		   }
-		 */
 		Vec natOrbR;
 		ierr=VecCreate(PETSC_COMM_WORLD,&natOrbR); CHKERRQ(ierr);
 		ierr=VecSetSizes(natOrbR,PETSC_DECIDE,L); CHKERRQ(ierr);
 		ierr=VecSetFromOptions(natOrbR); CHKERRQ(ierr);
-		
-		
 
 		for(int realIndex=0;realIndex<realization;realIndex++){
 
@@ -693,7 +663,7 @@ int main(int argc, char** argv){
 				//std::cout<<"Rand:"<< rnum<<std::endl;
 				//std::cout<<"Rand:"<< randArray[i]<<std::endl;
 			}
-			
+
 			//for(int site_i=0; site_i<L; site_i++){
 			//	randArray[site_i] = pow(-1,site_i)*0.0001;
 			//}			 
@@ -929,19 +899,20 @@ int main(int argc, char** argv){
 					PetscScalar vecNorm;
 					ierr = VecNorm(xi,NORM_INFINITY,&vecNorm);CHKERRQ(ierr);
 					if(vecNorm==0){
-
-						//ierr =  PetscViewerASCIIOpen(PETSC_COMM_WORLD, filenameVec , &viewer);
-						//ierr = PetscViewerPushFormat(viewer, PETSC_VIEWER_ASCII_MATLAB);
-						//ierr = PetscViewerSetFormat(viewer, PETSC_VIEWER_ASCII_MATLAB);
 						char VecCount[10];
 						sprintf(VecCount,"%d",numVecCount);
 						char numVec[100] = "Vec(";
 						strcat (numVec,VecCount);
 						strcat (numVec,",:)");
-						//ierr = PetscObjectSetName((PetscObject)xr, numVec);
-						//ierr = VecView(xr,viewerasc);CHKERRQ(ierr);
 						numVecCount++;
-						//PetscViewerDestroy(&viewer);
+#ifdef SAVE_EIG_VEC
+						ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD, filenameVec , &viewerasc);
+						//ierr = PetscViewerPushFormat(viewerasc, PETSC_VIEWER_ASCII_MATLAB);
+						//ierr = PetscViewerSetFormat(viewerasc, PETSC_VIEWER_ASCII_MATLAB);	
+						ierr = PetscObjectSetName((PetscObject)xr, numVec);
+						ierr = VecView(xr,viewerasc);CHKERRQ(ierr);
+						PetscViewerDestroy(&viewerasc);
+#endif
 					}
 					else {
 						std::cout<<"eigenvector has imaginary part !!! \n";
@@ -1223,7 +1194,7 @@ int main(int argc, char** argv){
 #ifdef IPR_log 
 							for (int k=0;k<L;k++){
 								ierr = VecGetValues(natOrbR,1,&k,&temp1); CHKERRQ(ierr);
-                                                        	IPR[realizationCount] += pow((double) temp1,4)/(double)L;
+								IPR[realizationCount] += pow((double) temp1,4)/(double)L;
 							}
 #endif
 						}
@@ -1371,34 +1342,36 @@ int main(int argc, char** argv){
 
 
 #ifdef IPR_log
-                        FILE* fp4 = fopen(filenameIPR, "a");
+			FILE* fp4 = fopen(filenameIPR, "a");
 #ifdef Header
-                        fprintf(fp4,"IPR=[\n");
+			fprintf(fp4,"IPR=[\n");
 #endif
-                        for (int i=0; i<realization*num_eig_taken; i++) {
-                                if (IPR[i]==0) {
-                                        break;
-                                }
-                                else{
-                                        fprintf(fp4,"%.*e ",16,IPR[i]);
-                                        fprintf(fp4,"\n");
-                                }
+			for (int i=0; i<realization*num_eig_taken; i++) {
+				if (IPR[i]==0) {
+					break;
+				}
+				else{
+					fprintf(fp4,"%.*e ",16,IPR[i]);
+					fprintf(fp4,"\n");
+				}
+			}
+#ifdef Header
+			fprintf(fp4,"];");
+#endif
+			fclose(fp4);
+#endif
+
+
+/*
+                        FILE* fp5 = fopen("basisMatrix", "a");
+                        for (int i=0; i<smallDim; i++) {
+				for (int l=0; l<L; l++){
+                                        fprintf(fp5,"%d",basisMatrix[i][l]);
+				}
+				fprintf(fp5,"\n");
                         }
-#ifdef Header
-                        fprintf(fp4,"];");
-#endif
-                        fclose(fp4);
-#endif
-
-
-
-
-
-
-
-
-
-
+                        fclose(fp5);
+*/
 
 
 			for (int i=0; i< smallDim; i++) {
@@ -1408,7 +1381,7 @@ int main(int argc, char** argv){
 			delete [] IPR;
 			delete [] entangleEntropy;
 			delete [] gapRatio;
-			
+
 			for (int i=0; i<realization*num_eig_taken; i++) {
 				delete [] occuSpecMatrix[i];
 			}
