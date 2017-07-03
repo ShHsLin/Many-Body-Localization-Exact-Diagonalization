@@ -49,7 +49,7 @@ const double E_default=0;
 const int realization_default=1;
 const double rand_max=RAND_MAX;
 
-const int num_eig_taken_default = 3; // Should be >=3
+const int num_eig_taken_default = 50; // Should be >=3
 
 
 KHASH_MAP_INIT_INT64(ToLargeMap, int);
@@ -1212,7 +1212,7 @@ int main(int argc, char** argv){
 #ifdef LevelSpacing
 				std::vector<double> vect_eig (arr_eigenvalues, arr_eigenvalues+num_eig_taken);
 				std::sort (vect_eig.begin(), vect_eig.end());
-				double mean_gap_ratio=0.;
+				double sum_gap_ratio=0.;
 				for(int i=0; i<num_eig_taken-2; i++){
 					//////
 					//   Calculating Consecutive level spacing ratio, 
@@ -1226,7 +1226,7 @@ int main(int argc, char** argv){
 					if(gapratio > 1){
 						gapratio= del_n1/del_n;
 					}
-					mean_gap_ratio+=gapratio;
+					sum_gap_ratio+=gapratio;
 					//std::cout<<" Gap Ratio: "<<gapratio <<std::endl;
 					//gapRatio[gapRatioCount] = gapratio;
 					//gapRatioCount++;
@@ -1234,9 +1234,9 @@ int main(int argc, char** argv){
 					//  End of calculating level spacing ratio
 					//////////////////////////////////////////////
 				}//End second for loop num_eig_taken
-				gapRatio[gapRatioCount] = mean_gap_ratio/(num_eig_taken-2.);
+				gapRatio[gapRatioCount] = sum_gap_ratio/(num_eig_taken-2.);
 				gapRatioCount++;
-				std::cout<<" MEAN GAP RATIO : "<<mean_gap_ratio/(num_eig_taken-2);
+				std::cout<<" MEAN GAP RATIO : "<<sum_gap_ratio/(num_eig_taken-2);
 #endif
 			}//End if nconv>0
 
